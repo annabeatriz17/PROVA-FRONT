@@ -34,3 +34,14 @@
 .button {
     margin: 5%;
 }
+
+.list {
+    list-style: none;
+    text-align: justify;
+    padding: 0;
+}
+
+.list li {
+    margin: 5px;
+}
+

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
 import { Pagination, Modal, Card, Skeleton } from "antd";
@@ -24,22 +24,55 @@ export default function Animals() {
         loading: false,
     });
 
+
     useEffect(() => {
-        async function fetchAnimals() {
+        const fetchAnimals = async () => {
+            const cached = await caches.match("animalsData", [])
+            if (cached) {
+                setData({animals: JSON.parse(cached), loading: false, current: 1, pageSize: 5});
+                return;
+            }
             try {
                 const {data: animals} = await axios.get( `${process.env.NEXT_PUBLIC_API_URL}/animals`,
                     {
-                        headers: {
-                            "D6XanJL91NxF6V9L2PuKkh5UjSQGV1": apikey,
-                        },
-                    });
-                setData(response.data);
-            } catch (error) {
-                console.error("Erro ao buscar dados de animais:", error);
+                        headers: HEADERS,
+                    }
+                    );
+                setData({animals, loading: false, current: 1, pageSize: 5});
+            } catch {
+                toast.error("Erro ao buscar dados de animais.");
+                setData((a) => ({ ...a, loading: false }));
             }
-        }
+        };
         fetchAnimals();
     }, []);
+
+    const openModal = async (animal) => {
+        setModalInfo({
+            visible: true,
+            animal,
+            species: null,
+            loading: true,
+        });
+        const cacheKey = `species_${animal.id}`;
+        const cached = await caches.match(cacheKey, null);
+        if (cached) {
+            setModalInfo((a) => ({ ...a, species: JSON.parse(cached), loading: false }));
+            return;
+        }
+        try {
+            const { data: species } = await axios.get(
+                `${process.env.NEXT_PUBLIC_API_URL}/species/${animal.species_id}`,
+                {
+                    headers: HEADERS,
+                }
+            );
+            setModalInfo((a) => ({ ...a, species, loading: false }));
+        } catch {
+            toast.error("Erro ao buscar dados de espécies.");
+            setModalInfo((a) => ({ ...a, loading: false }));
+        }
+    };
 
     const paginatedAnimals = () => {
         const start = (data.current - 1) * data.pageSize;
@@ -57,7 +90,7 @@ export default function Animals() {
                     setData((a) => ({ ...a, current: page, pageSize: size }))
                 }
                 showSizeChanger
-                pageSizeOptions={[5, 20, 50, 100]}
+                pageSizeOptions={[5, 10, 100]}
                 />
 
                 {data.loading ? (
