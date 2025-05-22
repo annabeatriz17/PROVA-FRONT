@@ -1,15 +1,13 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import axios from "axios";
 import { Pagination, Modal, Card, Skeleton } from "antd";
-import { setContentSession } from "@/utils/contentSession";
 import Image from "next/image";
 import styles from "./Animals.module.css";
 
-const HEADERS = { "x-api-key": process.env.NEXT_PUBLIC_API_KEY };
-
+const apikey = "D6XanJL91NxF6V9L2PuKkh5UjSQGV1";
 export default function Animals() {
     const [animals, setAnimals] = useState({
         animals: [],
@@ -24,52 +22,24 @@ export default function Animals() {
         species: null,
         loading: false,
     });
+    const [data, setData] = useState(null);
 
     useEffect(() => {
-        const fetchAnimals = async () => {
-            const cached = getContentSession("animalsData", [])
-            if (cached.length > 0) {
-                setAnimals({ animals: cached, loading: false, current: 1, pageSize: 5 });
-                return;
-            }
-
+        async function fetchAnimals() {
             try {
-                const { data: animals } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/animals`, {
-                    headers: HEADERS,
-                }
-            );
-            setContentSession("animalsData", animals);
-            setAnimals({ animals, loading: false, current: 1, pageSize: 5 });
-            } catch {
-                toast.error("Não foi possível carregar os animais.");
-                setAnimals({ ...a, loading: false });
+                const response = await axios.get("http://localhost:3000/api/animals",
+                    {
+                        headers: {
+                            "D6XanJL91NxF6V9L2PuKkh5UjSQGV1": apikey,
+                        },
+                    });
+                setAnimals(response.data);
+            } catch (error) {
+                console.error("Erro ao buscar dados de animais:", error);
             }
-        };
-
+        }
         fetchAnimals();
     }, []);
-
-    const openModal = async (animal) => {
-        setModalInfo({ visible: true, animal, species: animal.species });
-
-        const cacheKey = `species_${animal.id}`;
-        const cached = getContentSession(cacheKey, null);
-        if (cached) {
-            setModalInfo({ ...m, species: cached, loading: false });
-            return;
-        }
-
-        try {
-            const { data: species } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/species/${animal.species}`, {
-                headers: HEADERS,
-            });
-            setContentSession(cacheKey, species);
-            setModalInfo({ ...m, species, loading: false });
-        } catch {
-            toast.error("Não foi possível carregar a espécie.");
-            setModalInfo({ ...m, loading: false });
-        }  
-    };
 
     const paginatedAnimals = () => {
         const start = (animals.current - 1) * animals.pageSize;
