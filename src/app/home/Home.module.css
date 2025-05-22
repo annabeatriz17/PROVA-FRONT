@@ -7,27 +7,29 @@
 }
 
 .card {
-    height: 80%;
+    height: 90%;
     width: 60%;
     background-color: rgba(206, 127, 255, 0.74);
     border-radius: 5%;
 }
 
+.imageContainer {
+    width: 200px;
+    height: 200px;
+    padding: 12%;
+}
+
 .image {
-    padding: 20px;
+    object-fit: cover;
     border-radius: 50%;
 }
 
-.name {
+.conteudo {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: justify;
+    flex-direction: row-reverse;
+    margin: 5%;
 }
 
-.description {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: justify;
+.button {
+    margin: 5%;
 }
