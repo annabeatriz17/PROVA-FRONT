@@ -7,33 +7,33 @@ import { Pagination, Modal, Card, Skeleton } from "antd";
 import Image from "next/image";
 import styles from "./Animals.module.css";
 
-const apikey = "D6XanJL91NxF6V9L2PuKkh5UjSQGV1";
+const HEADERS = { "x-api-key": process.env.NEXT_PUBLIC_API_KEY };
+
 export default function Animals() {
-    const [animals, setAnimals] = useState({
+    const [data, setData] = useState({
         animals: [],
         loading: true,
         current: 1,
         pageSize: 0,
     });
 
-    const [modal, setModal] = useState({
+    const [modalInfo, setModalInfo] = useState({
         visible: false,
         animal: null,
         species: null,
         loading: false,
     });
-    const [data, setData] = useState(null);
 
     useEffect(() => {
         async function fetchAnimals() {
             try {
-                const response = await axios.get("http://localhost:3000/api/animals",
+                const {data: animals} = await axios.get( `${process.env.NEXT_PUBLIC_API_URL}/animals`,
                     {
                         headers: {
                             "D6XanJL91NxF6V9L2PuKkh5UjSQGV1": apikey,
                         },
                     });
-                setAnimals(response.data);
+                setData(response.data);
             } catch (error) {
                 console.error("Erro ao buscar dados de animais:", error);
             }
@@ -42,26 +42,25 @@ export default function Animals() {
     }, []);
 
     const paginatedAnimals = () => {
-        const start = (animals.current - 1) * animals.pageSize;
-        return animals.animals.slice(start, start + animals.pageSize);
+        const start = (data.current - 1) * data.pageSize;
+        return data.animals.slice(start, start + data.pageSize);
     };
 
     return (
         <div>
             <h1>Lista de Animais</h1>
-
             <Pagination
-                current={animals.current}
-                pageSize={animals.pageSize}
-                total={animals.animals.length}
+                current={data.current}
+                pageSize={data.pageSize}
+                total={data.animals.length}
                 onChange={(page, size) =>
-                    setAnimals((a) => ({ ...a, current: page, pageSize: size }))
+                    setData((a) => ({ ...a, current: page, pageSize: size }))
                 }
                 showSizeChanger
                 pageSizeOptions={[5, 20, 50, 100]}
                 />
 
-                {animals.loading ? (
+                {data.loading ? (
                     <Image
                     src= "/images/loading.gif"
                     width={200}
@@ -94,8 +93,8 @@ export default function Animals() {
                 )}
 
             <Modal
-            title={`Avaliação de ${modal.animal?.name_animals}`}
-            open={modal.visible}
+            title={`Avaliação de ${modalInfo.animal?.name_animals}`}
+            open={modalInfo.visible}
             onCancel={() => 
                 setModalInfo({
                     visible: false,
@@ -114,9 +113,9 @@ export default function Animals() {
             }
             width={600}
             >
-            {modal.loading ? (
+            {modalInfo.loading ? (
                 <Skeleton active />
-            ) : modal.species ? (
+            ) : modalInfo.species ? (
                 <div className={styles.speciesInfo}>
                     <p>
                         <span className={styles.label}>Raça:</span>{" "}

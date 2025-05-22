@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import styles from "./Home.module.css";
-import { Button } from "antd";
+import { Button, Skeleton } from "antd";
 
 export default function Home() {
     return (
@@ -19,7 +19,7 @@ export default function Home() {
                         <p>Matéria: Front-end</p>
                         <p>Atividade: Avaliação</p>
                         <p>Instrutores: Marcelo Carboni e Thiago Ferreira</p>
-                        <p>DESCRIÇÃO</p>
+                        <p>Essa é a minha atividade avaliativa. Nessa atividade tenho a API animals e species, que retorna uma lista de espécies de animais. Minha tabela de animais tem relação com a tabela de espécies.</p>
                     </p>
                 </div>
         
